@@ -1,0 +1,40 @@
+/* src/App.css */
+.App {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.login-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.login-container .card {
+  border-radius: 15px;
+  border: none;
+}
+
+.login-container .card-header {
+  border-radius: 15px 15px 0 0 !important;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.navbar-brand {
+  font-weight: bold;
+}
+
+.badge {
+  font-size: 0.8rem;
+  padding: 5px 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .login-container .card {
+    margin: 20px;
+  }
+}
