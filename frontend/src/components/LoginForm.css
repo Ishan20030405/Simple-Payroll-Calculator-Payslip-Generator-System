@@ -1,0 +1,24 @@
+/* src/components/LoginForm.css */
+
+/* Password Toggle Button */
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle:hover {
+  color: #111827;
+}
+
+/* Input Field with icon padding */
+.input-field {
+  padding-right: 40px !important;
+}
