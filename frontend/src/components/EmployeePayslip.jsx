@@ -1,6 +1,6 @@
 // src/components/EmployeePayslip.jsx
 import React, { useState } from 'react';
-import { Download, Printer, Calendar, Search, ChevronDown } from 'lucide-react';
+import { Download, Printer, Calendar, Search, ChevronDown, FileText } from 'lucide-react';
 
 const EmployeePayslip = ({ employee }) => {
   const [selectedMonth, setSelectedMonth] = useState('2026-05');
