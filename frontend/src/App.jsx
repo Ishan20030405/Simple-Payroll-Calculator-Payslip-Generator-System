@@ -1,11 +1,11 @@
-// src/App.jsx
+// src/App.jsx - With Nested Routes
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import LoginPage from './pages/LoginPage';
 import DashboardLayout from './components/DashboardLayout';
 import EmployeeDashboard from './components/EmployeeDashboard';
-import Employees from './components/Employees';
+import EmployeesPage from './features/team/EmployeesPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -16,23 +16,22 @@ function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             
-            {/* Admin Routes */}
+            {/* ✅ Dashboard Layout with Nested Routes */}
             <Route 
-              path="/dashboard" 
+              path="/" 
               element={
                 <ProtectedRoute>
                   <DashboardLayout />
                 </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/employees" 
-              element={
-                <ProtectedRoute>
-                  <Employees />
-                </ProtectedRoute>
-              } 
-            />
+              }
+            >
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<div>Dashboard Content</div>} />
+              <Route path="employees" element={<EmployeesPage />} />
+              <Route path="payroll" element={<div>Payroll Content</div>} />
+              <Route path="payslips" element={<div>Payslips Content</div>} />
+              <Route path="reports" element={<div>Reports Content</div>} />
+            </Route>
             
             {/* Employee Routes */}
             <Route 
@@ -43,8 +42,6 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-            
-            <Route path="/" element={<Navigate to="/login" replace />} />
           </Routes>
         </div>
       </Router>

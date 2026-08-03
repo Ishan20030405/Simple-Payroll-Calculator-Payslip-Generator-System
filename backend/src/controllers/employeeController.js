@@ -1,5 +1,6 @@
 // backend/src/controllers/employeeController.js
 const Employee = require('../models/Employee');
+const User = require('../models/User');
 const db = require('../config/db');
 
 // Get all employees
@@ -195,3 +196,64 @@ exports.getEmployeeStats = async (req, res) => {
         res.status(500).json({ error: 'Failed to get stats' });
     }
 };
+
+
+// ============================================
+// DELETE EMPLOYEE - WITH USER ACCOUNT DELETION
+// ============================================
+exports.deleteEmployee = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Check if employee exists
+        const existingEmployee = await Employee.findById(id);
+        if (!existingEmployee) {
+            return res.status(404).json({
+                success: false,
+                error: 'Employee not found'
+            });
+        }
+
+        // ✅ Get user_id before deleting employee
+        const userId = existingEmployee.user_id;
+
+        // Delete employee
+        const deleted = await Employee.delete(id);
+
+        // ✅ If employee had a linked user account, delete it too
+        if (userId) {
+            try {
+                await User.delete(userId);
+                console.log(`✅ User account ${userId} deleted along with employee`);
+            } catch (userError) {
+                console.error('Error deleting user account:', userError);
+                // Continue even if user deletion fails
+            }
+        }
+
+        // Log activity
+        try {
+            await db.execute(
+                'INSERT INTO activity_logs (user_id, action, details) VALUES (?, ?, ?)',
+                [req.user.id, 'EMPLOYEE_DELETED', `Employee ${existingEmployee.full_name} (${existingEmployee.employee_id}) deleted with user account`]
+            );
+        } catch (logError) {
+            console.error('Log error:', logError);
+        }
+
+        res.json({
+            success: true,
+            message: 'Employee and associated user account deleted successfully',
+            deleted,
+            userDeleted: !!userId
+        });
+
+    } catch (error) {
+        console.error('Delete employee error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to delete employee. Please try again.'
+        });
+    }
+};
+

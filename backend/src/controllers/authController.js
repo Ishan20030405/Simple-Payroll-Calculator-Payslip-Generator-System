@@ -105,3 +105,65 @@ exports.logout = async (req, res) => {
         res.status(500).json({ error: 'Logout failed' });
     }
 };
+
+// backend/src/controllers/authController.js
+
+// Register user from employee creation
+exports.registerUserFromEmployee = async (req, res) => {
+  try {
+    const { username, password, role, employeeId, fullName } = req.body;
+
+    // Validate input
+    if (!username || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        error: 'Username, password and role are required'
+      });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findByUsername(username);
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        error: 'User with this email already exists'
+      });
+    }
+
+    // Create user
+// Pass the raw NIC password.
+// User.create() will hash it.
+const userId = await User.create(username, password, role);
+
+    // Link employee to user
+    if (employeeId) {
+      await db.execute(
+        'UPDATE employees SET user_id = ? WHERE employee_id = ?',
+        [userId, employeeId]
+      );
+    }
+
+    // Log activity
+    await db.execute(
+      'INSERT INTO activity_logs (user_id, action, details) VALUES (?, ?, ?)',
+      [userId, 'USER_CREATED_FROM_EMPLOYEE', `User ${username} created from employee ${fullName}`]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'User account created successfully',
+      userId,
+      credentials: {
+        username: username,
+        password: password // NIC number (show only once)
+      }
+    });
+
+  } catch (error) {
+    console.error('Register user from employee error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create user account'
+    });
+  }
+};

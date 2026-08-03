@@ -33,23 +33,15 @@ const DashboardLayout = () => {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      // Fetch employee stats
       const statsResponse = await api.get('/employees/stats');
       setEmployeeStats(statsResponse.data);
-
-      // Fetch recent payrolls
       const payrollResponse = await api.get('/payrolls/recent');
       setRecentPayrolls(payrollResponse.data);
-
-      // Fetch alerts
       const alertsResponse = await api.get('/alerts');
       setAlerts(alertsResponse.data);
-
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       setError('Failed to load dashboard data');
-      
-      // Set fallback data
       setEmployeeStats({ total: 120, active: 112, inactive: 8 });
       setRecentPayrolls([
         { id: 1, month: 'May 2026', employees: 120, gross: '1,245,000', net: '967,500', status: 'Completed' },
@@ -66,7 +58,6 @@ const DashboardLayout = () => {
     }
   };
 
-  // ✅ Fixed: Single click logout
   const handleLogout = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -74,13 +65,11 @@ const DashboardLayout = () => {
     navigate('/login');
   };
 
-  // Get initials for avatar
   const getInitials = (name) => {
     if (!name) return 'A';
     return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
   };
 
-  // Format currency
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-LK', {
       style: 'currency',
@@ -111,11 +100,19 @@ const DashboardLayout = () => {
         </div>
         
         <nav className="sidebar-nav">
-          <NavLink to="/dashboard" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+          {/* ✅ Dashboard Link */}
+          <NavLink 
+            to="/dashboard" 
+            className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
+          >
             <LayoutDashboard size={18} /> Dashboard
           </NavLink>
           
-          <NavLink to="/employees" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+          {/* ✅ Employees Link - FIXED */}
+          <NavLink 
+            to="/employees" 
+            className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
+          >
             <Users size={18} /> Employees
           </NavLink>
 
@@ -132,7 +129,7 @@ const DashboardLayout = () => {
           </NavLink>
         </nav>
 
-        {/* ✅ Fixed Logout */}
+        {/* Logout */}
         <div className="sidebar-footer">
           <div 
             className="nav-item logout-btn" 
@@ -176,148 +173,7 @@ const DashboardLayout = () => {
         </header>
 
         <main className="page-content">
-          {/* Stats Cards */}
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-icon blue">
-                <Users size={20} />
-              </div>
-              <div className="stat-info">
-                <span className="stat-value">{employeeStats.total}</span>
-                <span className="stat-label">Total Employees</span>
-              </div>
-            </div>
-            
-            <div className="stat-card">
-              <div className="stat-icon green">
-                <UserCheck size={20} />
-              </div>
-              <div className="stat-info">
-                <span className="stat-value">{employeeStats.active}</span>
-                <span className="stat-label">Active Employees</span>
-              </div>
-            </div>
-            
-            <div className="stat-card">
-              <div className="stat-icon purple">
-                <DollarSign size={20} />
-              </div>
-              <div className="stat-info">
-                <span className="stat-value">
-                  {formatCurrency(employeeStats.total * 85000 || 0)}
-                </span>
-                <span className="stat-label">Monthly Payroll</span>
-              </div>
-            </div>
-            
-            <div className="stat-card">
-              <div className="stat-icon orange">
-                <TrendingUp size={20} />
-              </div>
-              <div className="stat-info">
-                <span className="stat-value">{alerts.length}</span>
-                <span className="stat-label">Pending Requests</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Payrolls & Alerts */}
-          <div className="content-grid">
-            <div className="card">
-              <div className="card-header">
-                <h3>Recent Payroll Runs</h3>
-                <button className="btn-outline" onClick={() => navigate('/payroll')}>
-                  View All
-                </button>
-              </div>
-              <div className="card-body">
-                {recentPayrolls.length > 0 ? (
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Payroll Month</th>
-                        <th>Employees</th>
-                        <th>Total Gross</th>
-                        <th>Total Net</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recentPayrolls.map((payroll, index) => (
-                        <tr key={payroll.id}>
-                          <td>{index + 1}</td>
-                          <td>{payroll.month}</td>
-                          <td>{payroll.employees}</td>
-                          <td>Rs. {payroll.gross}</td>
-                          <td>Rs. {payroll.net}</td>
-                          <td>
-                            <span className={`status-badge ${payroll.status?.toLowerCase() || 'completed'}`}>
-                              {payroll.status || 'Completed'}
-                            </span>
-                          </td>
-                          <td>
-                            <button className="icon-btn">
-                              <FileText size={14} />
-                            </button>
-                            <button className="icon-btn">
-                              <Printer size={14} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="text-muted text-center">No payroll records found</p>
-                )}
-              </div>
-            </div>
-
-            <div className="card alerts-card">
-              <div className="card-header">
-                <h3>⚠️ Alerts</h3>
-                <span className="badge">{alerts.length}</span>
-              </div>
-              <div className="card-body">
-                {alerts.length > 0 ? (
-                  alerts.map((alert) => (
-                    <div key={alert.id} className={`alert-item ${alert.type}`}>
-                      <AlertCircle size={16} />
-                      <span>{alert.message}</span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-muted text-center">No alerts</p>
-                )}
-                <button className="btn-outline full-width">View All Alerts</button>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="quick-actions">
-            <div className="card">
-              <div className="card-header">
-                <h3>Quick Actions</h3>
-              </div>
-              <div className="card-body quick-actions-grid">
-                <button className="action-btn primary" onClick={() => navigate('/employees')}>
-                  <Plus size={18} /> Add Employee
-                </button>
-                <button className="action-btn success" onClick={() => navigate('/payroll')}>
-                  <Calculator size={18} /> Process Payroll
-                </button>
-                <button className="action-btn info" onClick={() => navigate('/payslips')}>
-                  <FileText size={18} /> Generate Payslip
-                </button>
-                <button className="action-btn warning" onClick={() => navigate('/reports')}>
-                  <Download size={18} /> Export Reports
-                </button>
-              </div>
-            </div>
-          </div>
+          <Outlet />
         </main>
       </div>
     </div>
